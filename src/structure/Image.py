@@ -1,7 +1,7 @@
 import numpy as np
 
-from image_manipulation import show_image_from_numpy_array
-from structure.Blob import generateBlobsArrayFromImage, convertBlobsToImage, Blobs
+from image_manipulation import show_image_from_numpy_array, load_image_to_numpy_array
+from structure.Blobs import Blobs, convertBlobsToImage
 from structure.Vector import Vector2
 
 
@@ -19,6 +19,11 @@ class Image:
         show_image_from_numpy_array(self.pixels, title)
 
     def showFromBlobs(self, title: str = ""):
-        image = convertBlobsToImage(self.blobs)
+        image = self.blobs.toPixels()
         show_image_from_numpy_array(image, title)
 
+
+    @staticmethod
+    def fromFile(filename: str, blobSize: Vector2):
+        pixels = load_image_to_numpy_array(filename)
+        return Image(pixels, blobSize)

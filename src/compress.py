@@ -1,14 +1,20 @@
-from image_manipulation import load_image_to_numpy_array, save_image_from_numpy_array, show_image_from_numpy_array
+from structure.Blob import TYPES, ROTATIONS
+from structure.Image import Image
 from structure.Vector import Vector2
 
 
 def main(load_path: str, save_path: str):
-    image = load_image_to_numpy_array(load_path)
-    show_image_from_numpy_array(image, "Original")
+    image: Image = Image.fromFile(load_path, Vector2(8, 8))
+    image.showFromBlobs("Blobs")
 
-    resolution = Vector2(image.shape[0], image.shape[1])
-    blobs = Vector2(8, 8)
+    startBlob = image.blobs.get(0, 0)
+
+    derivatorBlob = image.blobs.get(1, 1)
+    derivatorBlob.type = TYPES.DERIVATED
+    derivatorBlob.derivatedFromBlob = startBlob
+    derivatorBlob.rotation = ROTATIONS.LEFT
+    image.showFromBlobs("Derivated")
 
 
 if __name__ == '__main__':
-    main("../testing_data/andrea-low-res.jpg", "temp/andrea-compressed.pca")
+    main("../testing_data/andrea-ultra-low-res.jpg", "temp/andrea-ultra-compressed.pca")
