@@ -22,6 +22,12 @@ class Image:
         image = self.blobs.toPixels()
         show_image_from_numpy_array(image, title)
 
+    def getFlattenedBlobsArray(self) -> list:
+        blobs = []
+        for blob_row in self.blobs.blobs:
+            for blob in blob_row:
+                blobs.append(blob)
+        return blobs
 
     @staticmethod
     def fromFile(filename: str, blobSize: Vector2):

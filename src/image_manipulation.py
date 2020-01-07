@@ -27,5 +27,5 @@ def show_image_from_numpy_array(image_array: np.ndarray, header: str = "", axis:
 
 def calculate_difference_in_images(image1: np.ndarray, image2: np.ndarray) -> int:
     diff_image = ImageChops.difference(Image.fromarray(image1), Image.fromarray(image2))
-    diff_array = np.array(diff_image).flatten()
-    return (diff_array ** 2).sum()
+    diff_array = np.array(diff_image).flatten().astype("uint32")
+    return (diff_array ** 3).sum()

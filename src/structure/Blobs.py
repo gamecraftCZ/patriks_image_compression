@@ -26,6 +26,14 @@ class Blobs:
     def toPixels(self):
         return convertBlobsToImage(self)
 
+    def getFlattenedBlobsArray(self) -> list:
+        blobs = []
+        for blob_row in self.blobs:
+            for blob in blob_row:
+                blobs.append(blob)
+        return blobs
+
+
 
 # Image resolution must be dividable by blockSize in both axises
 def generateBlobsArrayFromImage(pixels: np.ndarray, blobSize: Vector2) -> list:
