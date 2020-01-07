@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageChops
 import matplotlib.pyplot as plt
 
 
@@ -23,3 +23,9 @@ def show_image_from_numpy_array(image_array: np.ndarray, header: str = "", axis:
         plt.axis("off")
 
     plt.show()
+
+
+def calculate_difference_in_images(image1: np.ndarray, image2: np.ndarray) -> int:
+    diff_image = ImageChops.difference(Image.fromarray(image1), Image.fromarray(image2))
+    diff_array = np.array(diff_image).flatten()
+    return (diff_array ** 2).sum()

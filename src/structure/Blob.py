@@ -25,16 +25,16 @@ class Blob:
 
     position: Vector2
     size: Vector2
-    pixels: np.ndarray
+    _pixels: np.ndarray
 
     def __init__(self, pixels: np.ndarray, position: Vector2):
         self.position = position.copy()
         self.size = Vector2(pixels.shape[1], pixels.shape[0])
-        self.pixels = pixels
+        self._pixels = pixels
 
     def getPixels(self) -> np.ndarray:
         if self.type == TYPES.FIXED:
-            return self.pixels
+            return self._pixels
         else:
             # Derivated from another blob
             anotherBlobPixels = self.derivatedFromBlob.getPixels()
