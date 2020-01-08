@@ -1,16 +1,20 @@
 import numpy as np
+from bitstring import Bits
 
 from structure.Blob import Blob
 from structure.Vector import Vector2
 
 
 class Blobs:
-    blobs: list
-    size: Vector2
-    raw_pixels_resolution: Vector2
+    blobs: list = []
+    size: Vector2 = Vector2(0, 0)
+    raw_pixels_resolution: Vector2 = Vector2(0, 0)
 
     # Blob size must be x and y the same
     def __init__(self, pixels: np.ndarray, blobSize: Vector2):
+        if pixels.size == 0:
+            return
+
         self.blobs = generateBlobsArrayFromImage(pixels, blobSize)
         # Set reference to this list of blobs for decompression purposes, so they can address each other
         for blobs_row in self.blobs:
@@ -26,6 +30,9 @@ class Blobs:
     def toPixels(self):
         return convertBlobsToImage(self)
 
+    def toPixelsWithWhites(self):
+        return convertBlobsToImage(self, True)
+
     def getFlattenedBlobsArray(self) -> list:
         blobs = []
         for blob_row in self.blobs:
@@ -33,6 +40,18 @@ class Blobs:
                 blobs.append(blob)
         return blobs
 
+    def headersToBits(self) -> Bits:
+        headerBits = Bits()
+        for blob in self.getFlattenedBlobsArray():
+            headerBits += blob.headerToBits()
+        return headerBits
+
+    @staticmethod
+    def fromBlobsList(blobs: list):
+        blobsObj = Blobs(np.empty((0, 0)), None)
+        blobsObj.blobs = blobs
+        blobsObj.size = Vector2(len(blobs), len(blobs[0]))
+        blobsObj.raw_pixels_resolution = blobsObj.size * Vector2(2, 2)
 
 
 # Image resolution must be dividable by blockSize in both axises
@@ -54,18 +73,23 @@ def generateBlobsArrayFromImage(pixels: np.ndarray, blobSize: Vector2) -> list:
     return blobs
 
 
-def addBlobToPixelsArray(blob: Blob, pixelsArray: np.ndarray):
+def addBlobToPixelsArray(blob: Blob, pixelsArray: np.ndarray, whitesWhenDerived: bool = False):
     blobOffsetX = blob.position.x * blob.size.x
     blobOffsetY = blob.position.y * blob.size.y
 
+    if whitesWhenDerived:
+        blobPixels = blob.getPixelsOrWhiteIfNotDerived()
+    else:
+        blobPixels = blob.getPixels()
+
     for y in range(blob.size.y):
         for x in range(blob.size.x):
-            pixelsArray[blobOffsetY+y, blobOffsetX+x] = blob.getPixels()[y, x]
+            pixelsArray[blobOffsetY+y, blobOffsetX+x] = blobPixels[y, x]
 
-def convertBlobsToImage(blobs: Blobs) -> np.ndarray:
+def convertBlobsToImage(blobs: Blobs, whitesWhenDerived: bool = False) -> np.ndarray:
     img: np.ndarray = np.empty((blobs.raw_pixels_resolution.y, blobs.raw_pixels_resolution.x, 3), dtype="uint8")
     for blobs_row in blobs.blobs:
         for blob in blobs_row:
-            addBlobToPixelsArray(blob, img)
+            addBlobToPixelsArray(blob, img, whitesWhenDerived)
 
     return img

@@ -1,6 +1,6 @@
 import numpy as np
 
-from image_manipulation import show_image_from_numpy_array, load_image_to_numpy_array
+from image_manipulation import show_image_from_numpy_array, load_image_to_numpy_array, save_image_from_numpy_array
 from structure.Blobs import Blobs, convertBlobsToImage
 from structure.Vector import Vector2
 
@@ -21,6 +21,22 @@ class Image:
     def showFromBlobs(self, title: str = ""):
         image = self.blobs.toPixels()
         show_image_from_numpy_array(image, title)
+
+    def pixelsFromBlobs(self):
+        return self.blobs.toPixels()
+
+    def pixelsFromBlobsWithWhites(self):
+        return self.blobs.toPixelsWithWhites()
+
+    def showFromBlobsWithWhites(self, title: str = ""):
+        show_image_from_numpy_array(self.pixelsFromBlobsWithWhites(), title)
+
+    def saveFile(self, filename: str):
+        save_image_from_numpy_array(filename, self.pixelsFromBlobs())
+
+    def saveFileWithWhites(self, filename: str):
+        save_image_from_numpy_array(filename, self.pixelsFromBlobsWithWhites())
+
 
     def getFlattenedBlobsArray(self) -> list:
         blobs = []
