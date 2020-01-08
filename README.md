@@ -1,11 +1,11 @@
-# Patriks image compression (PIC)
+# Patrik's image compression (PIC)
 
-**This is just a scratch in python to show the algorithm. The compression is slow in this version.**
+**This is just a scratch in python to show the algorithm. The compression is slow in this implementation.**
 
-Custom image compression. Works on principales of finding similar patterns and reusing them as much as possible.
+Custom image compression. Works on principles of finding similar patterns and reusing them as much as possible.
 
 Searches for the most similar blob in 8x8 (6bits) area around current block.  
-Tryes some rotations (currently NONE, LEFT, RIGHT, DOWN (2bits)) and selects the one with best similarity.  
+Tries some rotations (currently NONE, LEFT, RIGHT, DOWN (2bits)) and selects the one with best similarity.  
 If similarity is not enough, save just the pixels as they are.
 
 
@@ -19,3 +19,4 @@ If similarity is not enough, save just the pixels as they are.
 ## LICENSE
 Feel free to use this algorithm in your projects. You must credit me and my repository in your project credits.  
 This license is for the whole algorithm, not just this python program.
+

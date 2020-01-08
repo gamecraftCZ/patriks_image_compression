@@ -1,8 +1,12 @@
-import numpy as np
-from PIL import ImageChops, Image as PilImage
+import copy
 
-from image_manipulation import show_image_from_numpy_array, calculate_difference_in_images
+import numpy as np
+
+from bitstring import Bits
+
+from image_manipulation import save_image_from_numpy_array
 from structure.Blob import TYPES, ROTATIONS
+from structure.Blobs import Blobs
 from structure.Image import Image
 from structure.Vector import Vector2
 
@@ -27,13 +31,14 @@ def getBestRotationWithDif(blob, blobToCompare):
     if minDiff == diffDown:
         return minDiff, ROTATIONS.DOWN
 
-def run_compression_round(allBlobs: list):
+
+def runCompressionRound(allBlobs: list):
     blobsTested = 0
     blobsCount = len(allBlobs)
     for blob in allBlobs:
         blobsTested += 1
         print(f"Blobs tested: {blobsTested} / {blobsCount}")
-        for blobToCompare in blob.getBlobsAround():
+        for blobToCompare in blob.getBlobsAroundFlattened():
             if blob.position == blobToCompare.position:
                 continue
             diff, rotation = getBestRotationWithDif(blob, blobToCompare)
@@ -47,29 +52,60 @@ def run_compression_round(allBlobs: list):
     for blob in allBlobs:
         if blob.derivatedFromBlob:
             derivatedBlocks += 1
-    print(f"derivatedBlocks: {derivatedBlocks}")
+    print(f"Derived Blocks: {derivatedBlocks}")
 
 
-def main(load_path: str, save_path: str):
+def saveJustBlobs(blobsList: list, filename: str) -> Blobs:
+    fixedBlobs = []
+    for blob in blobsList:
+        if blob.type == TYPES.FIXED:
+            blob = copy.copy(blob)
+            blob.position = Vector2(len(fixedBlobs), 0)
+            fixedBlobs.append(blob)
+
+    blobsList: Blobs = Blobs(np.zeros((0, 0)), Vector2(8, 8))
+
+    blobsList.blobs = [fixedBlobs]
+    # Size is in blobs count
+    blobsList.size.x = len(fixedBlobs)
+    blobsList.size.y = 1
+    blobsList.raw_pixels_resolution = Vector2(len(fixedBlobs) * 8, 8)
+
+    save_image_from_numpy_array(filename, blobsList.toPixels())
+    return blobsList
+
+
+def saveBlobsInformation(blobs: Blobs, filename: str):
+    headers: Bits = blobs.headersToBits()
+    with open(filename, "wb+") as f:
+        # Size is in blobs count
+        f.write(blobs.size.x.to_bytes(4, byteorder="big", signed=False))
+        f.write(blobs.size.y.to_bytes(4, byteorder="big", signed=False))
+        f.write(headers.bytes)
+
+
+
+def main(load_path: str, save_path: str, uncompressed_save_path: str):
     image: Image = Image.fromFile(load_path, Vector2(8, 8))
+    image.saveFile(uncompressed_save_path)
+
     print(f"blobs size: {image.blobs.size}")
-    image.showFromBlobs("Blobs")
+    # image.showFromBlobs("Blobs")
 
     allBlobs = image.getFlattenedBlobsArray()
-
-    run_compression_round(allBlobs)
-    print("FINSHED round 1")
-
-    # run_compression_round(allBlobs)
-    # print("FINSHED round 2")
-    #
-    # run_compression_round(allBlobs)
-    # print("FINSHED round 3")
+    runCompressionRound(allBlobs)
+    print("FINISHED round 1")
 
 
-    image.showFromBlobs("Derivated")
+    ## SAVE ##
+    saveBlobsInformation(image.blobs, "temp/saved_data.pcf")
+    saveJustBlobs(allBlobs, "temp/saved_blobs.jpg")
+
+    # image.showFromBlobsWithWhites("Derived")
+    # image.saveFileWithWhites(save_path)
+
     print("Compression [DONE]")
 
 
 if __name__ == '__main__':
-    main("../testing_data/andrea-low-res.bmp", "temp/andrea-ultra-compressed.pca")
+    main("../testing_data/andrea-quad-low-res.jpg", "temp/andrea_compressed.png", "temp/andrea_uncompressed.png")
