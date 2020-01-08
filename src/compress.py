@@ -38,7 +38,7 @@ def runCompressionRound(allBlobs: list):
     for blob in allBlobs:
         blobsTested += 1
         print(f"Blobs tested: {blobsTested} / {blobsCount}")
-        for blobToCompare in blob.getBlobsAround():
+        for blobToCompare in blob.getBlobsAroundFlattened():
             if blob.position == blobToCompare.position:
                 continue
             diff, rotation = getBestRotationWithDif(blob, blobToCompare)

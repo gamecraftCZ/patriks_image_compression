@@ -46,12 +46,19 @@ class Blobs:
             headerBits += blob.headerToBits()
         return headerBits
 
+
     @staticmethod
-    def fromBlobsList(blobs: list):
+    def fromBlobsList(blobs: list) -> "Blobs":
         blobsObj = Blobs(np.empty((0, 0)), None)
         blobsObj.blobs = blobs
-        blobsObj.size = Vector2(len(blobs), len(blobs[0]))
-        blobsObj.raw_pixels_resolution = blobsObj.size * Vector2(2, 2)
+        blobsObj.size = Vector2(len(blobs[0]), len(blobs))
+        blobsObj.raw_pixels_resolution = blobsObj.size * Vector2(8, 8)
+
+        for blobs_row in blobs:
+            for blob in blobs_row:
+                blob.blobsObject = blobsObj
+                blob.setDerivedBlockFromDerivedPositionFromBitsParse()
+        return blobsObj
 
 
 # Image resolution must be dividable by blockSize in both axises

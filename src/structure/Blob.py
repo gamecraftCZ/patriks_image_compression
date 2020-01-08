@@ -107,13 +107,22 @@ class Blob:
 
 
     def getBlobsAround(self) -> list:
+        # Returns 2d array
         leftestPosition = self._getLeftestDerivationPosition()
         toppestPosition = self._getToppestDerivationPosition()
 
         blobsAround = self.blobsObject.blobs[toppestPosition: toppestPosition + 8]
         blobsAround = [row[leftestPosition:leftestPosition+8] for row in blobsAround]
+
+        return blobsAround
+
+
+    def getBlobsAroundFlattened(self) -> list:
+        # Returns 1d array
+        blobsAround = self.getBlobsAround()
         blobsAroundFlattened = [item for sublist in blobsAround for item in sublist if item is not self]
         return blobsAroundFlattened
+
 
 
     def diffRaw(self, anotherBlob: "Blob"):
@@ -161,6 +170,16 @@ class Blob:
         # print(bitString)
         return Bits(bin=bitString)
 
+    def setDerivedBlockFromDerivedPositionFromBitsParse(self):
+        blobsAround = self.getBlobsAround()
+        derivedPosition = self._derivedPositionFromBitsParse
+        selectedBlob = blobsAround[derivedPosition.y][derivedPosition.x]
+        if selectedBlob is not self:
+            self.derivatedFromBlob = derivedPosition
+        self._derivedPositionFromBitsParse = None
+
+
+
 
     @staticmethod
     def fromBits(bits: Bits, position: Vector2, size: Vector2) -> "Blob":
@@ -177,9 +196,6 @@ class Blob:
         blob.rotation = ROTATIONS.fromInt(rotationInt)
 
         return blob
-
-
-
 
     @staticmethod
     def rotateImage(pixels: np.ndarray, rotation: ROTATIONS) -> np.ndarray:
