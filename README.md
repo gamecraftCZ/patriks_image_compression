@@ -10,6 +10,7 @@ If similarity is not enough, save just the pixels as they are.
 
 
 ## TODO
+- Find saving type where output image size is the smallest.
 - Try blobs similar search in 16x16 (8bits) area
 - Add more rotations (+calculate missing pixels)
 - Add finding similarity using blob movement by 1-2 pixels (+calculate missing pixels)

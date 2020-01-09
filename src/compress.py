@@ -85,12 +85,15 @@ def saveBlobsInformation(blobs: Blobs, filename: str):
 
 
 
-def main(load_path: str, save_path: str, uncompressed_save_path: str):
+def main(load_path: str, uncompressed_save_path: str,
+         save_path_image: str, save_path_data: str):
     image: Image = Image.fromFile(load_path, Vector2(8, 8))
     image.saveFile(uncompressed_save_path)
+    image.saveFile(uncompressed_save_path.replace(".jpg", ".png"))
+    image.saveFile(uncompressed_save_path.replace(".jpg", ".bmp"))
 
     print(f"blobs size: {image.blobs.size}")
-    # image.showFromBlobs("Blobs")
+    image.showFromBlobs("Blobs")
 
     allBlobs = image.getFlattenedBlobsArray()
     runCompressionRound(allBlobs)
@@ -98,14 +101,19 @@ def main(load_path: str, save_path: str, uncompressed_save_path: str):
 
 
     ## SAVE ##
-    saveBlobsInformation(image.blobs, "temp/saved_data.pcf")
-    saveJustBlobs(allBlobs, "temp/saved_blobs.jpg")
+    saveBlobsInformation(image.blobs, save_path_data)
+    saveJustBlobs(allBlobs, save_path_image)
+    saveJustBlobs(allBlobs, save_path_image.replace(".jpg", ".png"))
+    saveJustBlobs(allBlobs, save_path_image.replace(".jpg", ".bmp"))
 
-    # image.showFromBlobsWithWhites("Derived")
+    image.showFromBlobs("Derived")
+
+    image.showFromBlobsWithWhites("Derived")
     # image.saveFileWithWhites(save_path)
 
     print("Compression [DONE]")
 
 
 if __name__ == '__main__':
-    main("../testing_data/andrea-quad-low-res.jpg", "temp/andrea_compressed.png", "temp/andrea_uncompressed.png")
+    main("../testing_data/andrea-low-res.jpg", "temp/andrea_uncompressed.jpg",
+         "temp/saved_blobs.jpg", "temp/saved_data.pcf")

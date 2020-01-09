@@ -34,13 +34,13 @@ class Blob:
     type: TYPES = TYPES.FIXED
 
     derivatedFromBlob: "Blob" = None
-    _derivedPositionFromBitsParse: Vector2
+    _derivedPositionFromBitsParse: Vector2 = None
     lowestDerivation: int = 9999999999999
     rotation: ROTATIONS = ROTATIONS.NONE
 
-    position: Vector2
-    size: Vector2
-    _pixels: np.ndarray
+    position: Vector2 = None
+    size: Vector2 = None
+    _pixels: np.ndarray = None
     blobsObject: "Blobs" = None
 
     def __init__(self, pixels: np.ndarray, position: Vector2):
@@ -152,7 +152,7 @@ class Blob:
             derivedPosition = self._derivedPositionFromBitsParse
             derivedPosition = f"D?(x:{derivedPosition.x},y:{derivedPosition.y})"
 
-        return f"P(x:{self.position.x},y:{self.position.y}) {derivedPosition}"
+        return f"P(x:{self.position.x},y:{self.position.y}) {derivedPosition} - {self.type}"
 
 
     def headerToBits(self) -> Bits:
@@ -175,15 +175,16 @@ class Blob:
         derivedPosition = self._derivedPositionFromBitsParse
         selectedBlob = blobsAround[derivedPosition.y][derivedPosition.x]
         if selectedBlob is not self:
-            self.derivatedFromBlob = derivedPosition
-        self._derivedPositionFromBitsParse = None
+            self.derivatedFromBlob = selectedBlob
+            self.type = TYPES.DERIVATED
+            self._derivedPositionFromBitsParse = None
 
 
 
 
     @staticmethod
     def fromBits(bits: Bits, position: Vector2, size: Vector2) -> "Blob":
-        blob = Blob(np.empty((8, 8, 3), dtype="uint8"), position)
+        blob = Blob(np.zeros((8, 8, 3), dtype="uint8"), position)
         blob.position = position
         blob.size = size
 

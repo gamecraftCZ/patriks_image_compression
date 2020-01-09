@@ -57,6 +57,7 @@ class Blobs:
         for blobs_row in blobs:
             for blob in blobs_row:
                 blob.blobsObject = blobsObj
+                # print(f"fromBlobsList: {blob}")
                 blob.setDerivedBlockFromDerivedPositionFromBitsParse()
         return blobsObj
 
@@ -97,6 +98,7 @@ def convertBlobsToImage(blobs: Blobs, whitesWhenDerived: bool = False) -> np.nda
     img: np.ndarray = np.empty((blobs.raw_pixels_resolution.y, blobs.raw_pixels_resolution.x, 3), dtype="uint8")
     for blobs_row in blobs.blobs:
         for blob in blobs_row:
+            # print(f"convertBlobsToImage: {blob}")
             addBlobToPixelsArray(blob, img, whitesWhenDerived)
 
     return img
