@@ -71,7 +71,7 @@ class MainGui(wx.Frame):
 
         self.sizer.Add(self.compress_drop, 0, wx.ALL, 5)
         #######################################################
-        self.compressButton = wx.Button(self.panel, label="Začít")
+        self.compressButton = wx.Button(self.panel, label="Začít kompresi")
         self.compressButton.Disable()
         self.compressButton.Bind(wx.EVT_LEFT_DOWN, self.startCompress)
         self.sizer.Add(self.compressButton, 0, wx.ALL | wx.ALIGN_CENTER, 5)
@@ -115,7 +115,7 @@ class MainGui(wx.Frame):
 
         dropSizer.Add(self.decompress_drop_pcf, 0, wx.ALL, 5)
         #######################################################
-        self.decompressButton = wx.Button(self.panel, label="Začít")
+        self.decompressButton = wx.Button(self.panel, label="Začít dekompresi")
         self.decompressButton.Disable()
         self.decompressButton.Bind(wx.EVT_LEFT_UP, self.startDecompress)
         self.sizer.Add(self.decompressButton, 0, wx.ALL | wx.ALIGN_CENTER, 5)
