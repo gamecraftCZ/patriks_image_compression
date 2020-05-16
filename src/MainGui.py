@@ -1,4 +1,11 @@
+import traceback
+from threading import Thread
+
 import wx
+
+from compress import runCompressionRound, saveBlobsInformation, saveJustBlobs
+from structure.Image import Image
+from structure.Vector import Vector2
 
 
 class MyFileDropTarget(wx.FileDropTarget):
@@ -63,6 +70,7 @@ class MainGui(wx.Frame):
         #######################################################
         self.compressButton = wx.Button(self.panel, label="Začít")
         self.compressButton.Disable()
+        self.compressButton.Bind(wx.EVT_LEFT_DOWN, self.startCompress)
         self.sizer.Add(self.compressButton, 0, wx.ALL | wx.ALIGN_CENTER, 5)
 
     def __setupDecompressMenu(self):
@@ -106,6 +114,7 @@ class MainGui(wx.Frame):
         #######################################################
         self.decompressButton = wx.Button(self.panel, label="Začít")
         self.decompressButton.Disable()
+        self.decompressButton.Bind(wx.EVT_LEFT_UP, self.startDecompress)
         self.sizer.Add(self.decompressButton, 0, wx.ALL | wx.ALIGN_CENTER, 5)
 
     def selectFileToCompress(self, filepath: str = None):
@@ -145,3 +154,68 @@ class MainGui(wx.Frame):
         self.decompress_drop_pcf.SetLabelText('Zvolil jsi blob soubor: {}'.format(filepath.split("\\")[-1]))
         if self.selectedBlobToDecompress:
             self.decompressButton.Enable()
+
+    def startCompress(self, event=None):
+        try:
+            image: Image = Image.fromFile(self.selectedFileToCompress, Vector2(8, 8))
+            print(f"blobs size: {image.blobs.size}")
+            print(f"blobs count: {image.blobs.getBlobsCount()}")
+            if image.blobs.getBlobsCount() > 1024:
+                dlg = wx.MessageBox("Obrázek je velký, komprese zabere dlouho. Chceš pokračovat?", "Varování",
+                                    wx.ICON_WARNING | wx.YES_NO)
+                if dlg != wx.YES:
+                    return
+            print("Starting compression")
+
+            image.showFromBlobs("Tohle budu komprimovat")
+            allBlobs = image.getFlattenedBlobsArray()
+
+            dlg = wx.ProgressDialog("Komprimuji", f'',
+                                    maximum=len(allBlobs),
+                                    parent=self,
+                                    style=wx.PD_APP_MODAL | wx.PD_ESTIMATED_TIME | wx.PD_REMAINING_TIME | wx.PD_CAN_ABORT)
+
+            progressObject = {"count": 0, "max": len(allBlobs), "cancel": False}
+            Thread(target=runCompressionRound, args=(allBlobs, progressObject)).start()
+
+            while progressObject["count"] < progressObject["max"]:
+                wx.MilliSleep(100)
+                wx.Yield()
+                if dlg.WasCancelled():
+                    print("Cancelled")
+                    progressObject["cancel"] = True
+                    wx.MessageBox("Komprese byla přerušena uživatelem.", "Zrušeno", wx.ICON_INFORMATION)
+                    dlg.Update(progressObject["max"])
+                    dlg.Destroy()
+                    return
+
+                dlg.Update(progressObject["count"])
+
+            print("Compression done")
+            dlg.Destroy()
+            image.showFromBlobs("Zkomprimovaný obrázek")
+
+            blobSaveDlg = wx.FileDialog(None, "Kam chceš uložit část obrázku .blob ?", wildcard="Blob files (*.blob)|*.blob",
+                                        style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+            if blobSaveDlg.ShowModal() != wx.ID_OK:
+                wx.MessageBox("Zrušeno uživatelem.", "Zrušeno", wx.ICON_INFORMATION)
+
+            pcfSaveDlg = wx.FileDialog(None, "Kam chceš uložit část obrázku .pcf ?",
+                                       wildcard="Patriks Compressed Files (*.pcf)|*.pcf",
+                                       style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+            if pcfSaveDlg.ShowModal() != wx.ID_OK:
+                wx.MessageBox("Zrušeno uživatelem.", "Zrušeno", wx.ICON_INFORMATION)
+
+            saveBlobsInformation(image.blobs, blobSaveDlg.GetPath())
+            saveJustBlobs(allBlobs, pcfSaveDlg.GetPath())
+
+            wx.MessageBox("Uloženo.", "Úspěch", wx.ICON_INFORMATION)
+
+
+        except Exception as e:
+            print("Compression error: ", e)
+            traceback.print_exc()
+            wx.MessageBox("Nepodařilo se zkomprimovat obrázek! Zkuste jiný.", "Chyba", wx.ICON_ERROR)
+
+    def startDecompress(self, event=None):
+        pass

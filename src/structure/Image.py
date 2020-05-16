@@ -1,5 +1,5 @@
 import numpy as np
-
+import cv2
 from image_manipulation import show_image_from_numpy_array, load_image_to_numpy_array, save_image_from_numpy_array
 from structure.Blobs import Blobs, convertBlobsToImage
 from structure.Vector import Vector2
@@ -48,4 +48,5 @@ class Image:
     @staticmethod
     def fromFile(filename: str, blobSize: Vector2):
         pixels = load_image_to_numpy_array(filename)
+        pixels = cv2.resize(pixels, dsize=(pixels.shape[0] // 8 * 8, pixels.shape[1] // 8 * 8))
         return Image(pixels, blobSize)

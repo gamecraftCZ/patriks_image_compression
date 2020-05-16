@@ -1,4 +1,5 @@
 import copy
+import os
 
 import numpy as np
 
@@ -32,12 +33,14 @@ def getBestRotationWithDif(blob, blobToCompare):
         return minDiff, ROTATIONS.DOWN
 
 
-def runCompressionRound(allBlobs: list):
-    blobsTested = 0
-    blobsCount = len(allBlobs)
+def runCompressionRound(allBlobs: list, progressObject=None):
+    if progressObject is None:
+        progressObject = {"count": 0, "max": len(allBlobs), "cancel": False}
     for blob in allBlobs:
-        blobsTested += 1
-        print(f"Blobs tested: {blobsTested} / {blobsCount}")
+        if progressObject.get("cancel"):
+            return
+        progressObject["count"] += 1
+        print(f'Blobs tested: {progressObject["count"]} / {progressObject["max"]}')
         for blobToCompare in blob.getBlobsAroundFlattened():
             if blob.position == blobToCompare.position:
                 continue

@@ -10,6 +10,9 @@ class Blobs:
     size: Vector2 = Vector2(0, 0)
     raw_pixels_resolution: Vector2 = Vector2(0, 0)
 
+    def getBlobsCount(self) -> int:
+        return self.size.x * self.size.y
+
     # Blob size must be x and y the same
     def __init__(self, pixels: np.ndarray, blobSize: Vector2):
         if pixels.size == 0:

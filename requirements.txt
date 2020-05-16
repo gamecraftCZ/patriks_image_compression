@@ -3,3 +3,4 @@ Pillow
 matplotlib
 bitstring
 wxpython
+opencv-python
