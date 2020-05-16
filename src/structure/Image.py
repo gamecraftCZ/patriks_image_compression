@@ -48,5 +48,5 @@ class Image:
     @staticmethod
     def fromFile(filename: str, blobSize: Vector2):
         pixels = load_image_to_numpy_array(filename)
-        pixels = cv2.resize(pixels, dsize=(pixels.shape[0] // 8 * 8, pixels.shape[1] // 8 * 8))
+        pixels = cv2.resize(pixels, dsize=(pixels.shape[1] // 8 * 8, pixels.shape[0] // 8 * 8))
         return Image(pixels, blobSize)

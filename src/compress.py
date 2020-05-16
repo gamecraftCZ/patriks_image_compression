@@ -74,7 +74,7 @@ def saveJustBlobs(blobsList: list, filename: str) -> Blobs:
     blobsList.size.y = 1
     blobsList.raw_pixels_resolution = Vector2(len(fixedBlobs) * 8, 8)
 
-    save_image_from_numpy_array(filename, blobsList.toPixels())
+    save_image_from_numpy_array(filename, blobsList.toPixels(), 70)
     return blobsList
 
 

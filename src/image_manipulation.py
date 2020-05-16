@@ -9,9 +9,9 @@ def load_image_to_numpy_array(filename: str) -> np.ndarray:
     return arr
 
 
-def save_image_from_numpy_array(filename: str, image_array: np.ndarray):
+def save_image_from_numpy_array(filename: str, image_array: np.ndarray, quality: int=100):
     img = Image.fromarray(image_array)
-    img.save(filename, "JPEG", quality=70)  # , optimize=True, progressive=True)
+    img.save(filename, "JPEG", quality=quality)  # , optimize=True, progressive=True)
 
 
 def show_image_from_numpy_array(image_array: np.ndarray, header: str = "", axis: bool = False):

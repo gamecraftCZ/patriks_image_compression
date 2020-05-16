@@ -9,6 +9,13 @@ Tries some rotations (currently NONE, LEFT, RIGHT, DOWN (2bits)) and selects the
 If similarity is not enough, save just the pixels as they are.
 
 
+## Build to .exe
+- Built .exe will be saved in folder dist
+```
+pip install pyinstaller
+pyinstaller  -F --noconsole __main__.py
+```
+
 ## TODO
 - Find saving type where output image size is the smallest.
 - Try blobs similar search in 16x16 (8bits) area
